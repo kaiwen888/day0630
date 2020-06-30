@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vuejs/vuejs-2.5.16.js"></script>
+    <script src="vuejs/axios-0.18.0.js"></script>
+</head>
+<body>
+<div id="app">
+    姓名:<input type="text" id="username" v-model="user.username" placeholder="请输入姓名"><br>
+    密码:<input type="password" id="password" v-model="user.password" placeholder="请输入密码"><br>
+    年龄:<input type="text" id="age" v-model="user.age" placeholder="请输入年龄"><br><br>
+    生日:<input type="data" id="birthday" v-model="user.birthday" placeholder="请输入生日"><br><br>
+
+    分配部门:<select name="deptid" @change="getrolelist()">
+    <option>--请选择部门--</option>
+    <option :value="d.deptid" v-for="d in dept">{{d.dname}}</option>
+
+</select><br><br>
+
+    分配角色: <select name="rid">
+    <option>--请选择角色--</option>
+</select><br><br>
+    <input type="button" @click="fun" value="获取">
+</div>
+</body>
+<script>
+    new Vue({
+        el:'#app',
+        data:{
+            dept:[],
+            user:{username:"",password:""}
+            },
+        methods:{
+            function () {
+                var url = "vue/toaddUser.do";
+                /**
+                 * 现在这这个地方我们使用的this是vue的this，到了ajax里面后，vue和这个ajax不能说是从属关系，合作关系，
+                 * 两者之间的this不能通用，所有在ajax里面想用this，在外面先声明一下。这个this是关键字，有特殊作用，
+                 * 要是和普通变量，那么在哪里都能用
+                 */
+                var _this = this;
+                axios.get(url).then(function (response) {
+                    //在vue里面的ajax的回调函数的返回值response，和angular和jquery的有区别，不能直接认为就是数据集，需要获取
+                    //获取的方法就是.data
+                    _this.dept = response.data.list;
+                }).catch(function (err) {
+                    console.log(err)
+                });
+            },
+           /* fun:function(){
+                alert(this.user.username);
+                this.user.username="tom"; this.user.password="11111111";
+            }*/
+
+            getrolelist : function(value){
+                alert(this.deptid);
+
+            }
+        }
+    });
+
+</script>
+</html>

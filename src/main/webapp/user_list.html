@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="vuejs/vuejs-2.5.16.js"></script>
+    <script src="vuejs/axios-0.18.0.js"></script>
+</head>
+<body>
+<center>
+    <div id="app">
+
+
+        <table border="1" rules="all" id="a1">
+            <tr align="center" bgcolor="#00ffff">
+                <th>编码</th>
+                <th>姓名</th>
+                <th>密码</th>
+                <th>年龄</th>
+                <th>生日</th>
+                <th>部门</th>
+                <th>角色</th>
+                <td colspan="111">操作<a href="user_add.html">新增</a></td>
+            </tr>
+            <tr v-for="u in userList">
+                <td>{{u.id}}</td>
+                <td>{{u.username}}</td>
+                <td>{{u.password}}</td>
+                <td>{{u.age}}</td>
+                <td>{{u.birthday}}</td>
+                <td>{{u.deptBean.dname}}</td>
+                <td>{{u.roleBean.rname}}</td>
+                <td><button @click="toUserDeptRole(u.id)">分配部门和职业</button></td>
+                <td><button @click="deleteUser(u.id)">删除</button></td>
+                <td><button @click="updateUser($event,u.id)">修改</button></td>
+                <td><button @click="selectPower($event,u.id)">查看权限</button></td>
+                <!--
+                    1、vue的日期的格式化问题
+                    2、当对象里面的对d象为空的之后不出值的问题
+                    以前在后台new一下就OK啦，现在不行，我们的想办法
+                -->
+            </tr>
+        </table>
+        <button @click="userPage()">第一页</button>
+        <button @click="userPage(currentPage-1)">上一页</button>
+        <button @click="userPage(currentPage+1)">下一页</button>
+        <button @click="userPage(totalPage)">最后一页</button>
+    </div>
+</center>
+</body>
+<script>
+    //只能放在body后面
+    new Vue({
+        el:'#app', //表示当前vue对象接管了div区域
+        data:{
+            userList:[],
+            currentPage:[],
+            totalPage:[]
+        },
+        methods:{
+            findAll: function () {
+                var url = "vue/test.do";
+                /**
+                 * 现在这这个地方我们使用的this是vue的this，到了ajax里面后，vue和这个ajax不能说是从属关系，合作关系，
+                 * 两者之间的this不能通用，所有在ajax里面想用this，在外面先声明一下。这个this是关键字，有特殊作用，
+                 * 要是和普通变量，那么在哪里都能用
+                 */
+                var _this = this;
+                axios.get(url).then(function (response) {
+                    //在vue里面的ajax的回调函数的返回值response，和angular和jquery的有区别，不能直接认为就是数据集，需要获取
+                    //获取的方法就是.data
+                    _this.userList = response.data.list;
+                    _this.currentPage = response.data.currentPage;
+                    _this.totalPage = response.data.pageCount;
+                }).catch(function (err) {
+                    console.log(err)
+                });
+            },
+            deleteUser:function (id) {
+                var url = "vue/delete.do?id="+id;
+                /**
+                 * 现在这这个地方我们使用的this是vue的this，到了ajax里面后，vue和这个ajax不能说是从属关系，合作关系，
+                 * 两者之间的this不能通用，所有在ajax里面想用this，在外面先声明一下。这个this是关键字，有特殊作用，
+                 * 要是和普通变量，那么在哪里都能用
+                 */
+                var _this = this;
+                axios.get(url).then(function (response) {
+                    if(response.data.success){
+                        _this.findAll();
+                    }else{
+                        alert(response.data.message);
+                    }
+                }).catch(function (err) {
+                    console.log(err)
+                });
+            },
+            userPage:function (pageNum) {
+                var url = "vue/test.do?pageNum="+pageNum;
+                /**
+                 * 现在这这个地方我们使用的this是vue的this，到了ajax里面后，vue和这个ajax不能说是从属关系，合作关系，
+                 * 两者之间的this不能通用，所有在ajax里面想用this，在外面先声明一下。这个this是关键字，有特殊作用，
+                 * 要是和普通变量，那么在哪里都能用
+                 */
+                var _this = this;
+                axios.get(url).then(function (response) {
+                    _this.userList = response.data.list;
+                    _this.currentPage = response.data.currentPage;
+                }).catch(function (err) {
+                    console.log(err)
+                });
+            },
+            updateUser:function (event,id) {
+                alert(id);
+                /**
+                 * 我们应该拿到第二个table，属性设置成show，就把藏的这个table显示出来了
+                 */
+            }
+        },
+        created:function () {
+            this.findAll();
+        }
+    });
+</script>
+</html>
